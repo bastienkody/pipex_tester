@@ -54,7 +54,7 @@ make re 1>/dev/null 2> stderrmake.txt
 make > stdoutmakebis.txt 2>&1
 [[ -s stderrmake.txt ]] && echo -ne "${RED} make wrote on std err${END}" || echo -ne "${GREEN} no make error${END}" 
 echo -n " -- "
-cat stdoutmakebis.txt | egrep -viq "(nothin|already)" && echo -ne "${RED}makefile relink?${END}" || echo -ne "${GREEN}no relink${END}"
+cat stdoutmakebis.txt | egrep -viq "(nothin|already|date)" && echo -ne "${RED}makefile relink?${END}" || echo -ne "${GREEN}no relink${END}"
 echo -n " -- "
 [[ -f pipex && -x pipex ]] && echo -e "${GREEN}exec named pipex${END}" || echo -e "${RED}no exec file found named pipex${END}"
 rm -rf stderrmake.txt stdoutmakebis.txt
@@ -66,7 +66,7 @@ make bonus 1>/dev/null 2> stderrmake.txt
 make bonus > stdoutmakebis.txt 2>&1
 [[ -s stderrmake.txt ]] && echo -ne "${RED} make bonus wrote on std err${END}" || echo -ne "${GREEN} no make bonus error${END}" 
 echo -ne " -- "
-cat stdoutmakebis.txt | egrep -viq "(nothin|already)" && echo -e "${RED}makefile relinks on bonus?${END}" || echo -e "${GREEN}no relink on bonus${END}"
+cat stdoutmakebis.txt | egrep -viq "(nothin|already|date)" && echo -e "${RED}makefile relinks on bonus?${END}" || echo -e "${GREEN}no relink on bonus${END}"
 rm -rf stderrmake.txt stdoutmakebis.txt
 ( make fclean && make ) >/dev/null 2>&1 
 fi
@@ -344,7 +344,7 @@ echo -ne "Test 1 : ./pipex Makefile ./a.out cat outf \t\t\t--> "
 ./pipex Makefile "./a.out" "cat" outf 2> stderr.txt
 code=$(echo $?)
 [[ -f outf && $(cat outf) == "yo" ]] && echo -ne "${GREEN}OK${END}"|| echo -ne "${RED}KO${END}"
-[[ -s stderr.txt ]] && echo -ne "${RED} KO : you wrote on stderr${END}"
+[[ -s stderr.txt ]] && echo -ne "${RED}you wrote on stderr${END}"
 [[ $code -eq 0 ]] && echo -e "${GREEN} (+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -f stderr.txt outf
 
@@ -369,17 +369,19 @@ rm -f stderr.txt a.out outf
 echo -e "${BLU_BG}Empty environnement:${END}"
 
 echo -ne "Test 1 : env -i ./pipex Makefile cat ls outf \t\t\t--> "
-env -i ./pipex Makefile "cat" "echo yo" outf 2> stderr.txt
+env -i ./pipex Makefile "cat" "echo yo" outf > stderr.txt 2>&1
 code=$(echo $?)
 [[ -f outf ]] && cat outf | grep -q yo && ( echo -ne "${GREEN}OK - WOW t'es chaud, explique moi stp!${END}" && [[ $code -eq 0 ]] && echo -e " ${GREEN}(return status == 0)${END}" || echo -e " ${YEL}(return status != 0)${END}" )
 [[ -f stderr.txt && $(cat stderr.txt | grep -ic "command not found") -eq 2 ]] && echo -ne "${GREEN}OK${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
 [[ -f outf ]] && cat outf | grep -q yo ||( [[ $code -eq 127 ]] && echo -e " ${GREEN}(+ return status == 127)${END}" || echo -e " ${YEL}(- return status != 127)${END}" )
 rm -f outf stderr.txt
 
 echo -ne "Test 2 : env -i ./pipex Makefile ${bin_path}/cat ${bin_path}/cat outf\t--> "
-env -i ./pipex Makefile "${bin_path}/cat" "${bin_path}/cat" outf 2> stderr.txt
+env -i ./pipex Makefile "${bin_path}/cat" "${bin_path}/cat" outf > stderr.txt 2>&1
 code=$(echo $?)
-diff Makefile outf 2>/dev/null && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
+diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg.*fault|dump" |wc -l|tr "[:blank:]") -gt 0 ]] && echo -ne "${RED}KO segfault${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf stderr.txt
 
@@ -389,20 +391,22 @@ tmp_PATH=$PATH
 
 echo -ne "Test 1 : unset PATH && ./pipex Makefile cat ls outf \t\t\t--> "
 unset PATH
-./pipex Makefile "ls" "cat" outf 2> stderr.txt
+./pipex Makefile "ls" "cat" outf > stderr.txt 2>&1
 code=$(echo $?)
 PATH=$tmp_PATH && export PATH
 [[ -f stderr.txt && $(cat stderr.txt | grep -ic "command not found") -eq 2 ]] && echo -ne "${GREEN}OK${END}"
 [[ -f stderr.txt && $(cat stderr.txt | wc -l) -ne 2 ]] && echo -ne "${YEL}KO (- not two lines written to stderr)${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
 [[ $code -eq 127 ]] && echo -e " ${GREEN}(+ return status == 127)${END}" || echo -e " ${YEL}(- return status != 127)${END}"
 rm -f outf stderr.txt
 
 echo -ne "Test 2 : unset PATH && ./pipex Makefile ${bin_path}/cat ${bin_path}/cat outf \t--> "
 unset PATH
-./pipex Makefile "${bin_path}/cat" "${bin_path}/cat" outf 2> stderr.txt
+./pipex Makefile "${bin_path}/cat" "${bin_path}/cat" outf > stderr.txt 2>&1
 code=$(echo $?)
 PATH=$tmp_PATH && export PATH
-diff Makefile outf 2>/dev/null && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
+diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf stderr.txt
 
