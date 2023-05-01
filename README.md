@@ -5,7 +5,7 @@
 Git clone the project into your pipex repo : 
 	`git clone git@github.com:bastienkody/pipex_tester.git`
 
-Copy the tester into your repo :
+Copy the tester into your main repo (beside Makefile) :
 	`cp pipex_tester/tester_pipex.sh ./`
 
 # Usage
