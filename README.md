@@ -1,8 +1,6 @@
 # pipex_tester
 42 project 'pipex' tester - testeur du projet 42 'pipex'
 
-# Image
-
 # Download
 Git clone the project into your pipex repo : `git clone git@github.com:bastienkody/pipex_tester.git`
 
@@ -45,10 +43,16 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 	* leaks on all process
 	* extra opened fd on all process
 
+![alt text](https://github.com/bastienkody/pipex_tester/blob/main/imgs/mandatory_tests.png)
+
 ## Bonus ##
 **Warning: your bonus exec must be named 'pipex'**
 * Multi cmd
 * heredoc
+
+_Could not find a way to send EOF to the pipex here_doc to simulate ctrl+d (wich is not a signal). Please make an issue if you can!__
+
+![alt text](https://github.com/bastienkody/pipex_tester/blob/main/imgs/bonus_tests.png)
 
 ## Additional tests ##
 _These tests are not all required to pass to validate pipex. Altough you should not **segfault**, especially on the last ones_
@@ -56,3 +60,5 @@ _These tests are not all required to pass to validate pipex. Altough you should 
 * Spaces parsing
 * Backslash parsing
 * Fd limit 
+
+![alt text](https://github.com/bastienkody/pipex_tester/blob/main/imgs/additionnal_tests.png)
