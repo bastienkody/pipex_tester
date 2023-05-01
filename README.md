@@ -51,7 +51,7 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 * heredoc
 
 ## Additional tests ##
-These tests are not all required to pass to validate pipex. Altough you should not **segfault**, especially on the last ones
+_These tests are not all required to pass to validate pipex. Altough you should not **segfault**, especially on the last ones_
 * Single quotes parsing
 * Spaces parsing
 * Backslash parsing
