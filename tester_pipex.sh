@@ -51,7 +51,7 @@ fi
 #makefile 
 echo -ne "${BLU_BG}Test Makefile:${END} \t\t\t\t\t\t\t-->"
 make re 1>/dev/null 2> stderrmake.txt
-make > stdoutmakebis.txt
+make > stdoutmakebis.txt 2>&1
 [[ -s stderrmake.txt ]] && echo -ne "${RED} make wrote on std err${END}" || echo -ne "${GREEN} no make error${END}" 
 echo -n " -- "
 cat stdoutmakebis.txt | egrep -viq "(nothin|already)" && echo -ne "${RED}makefile relink?${END}" || echo -ne "${GREEN}no relink${END}"
@@ -63,7 +63,7 @@ rm -rf stderrmake.txt stdoutmakebis.txt
 if [[ $bonus == 1 ]] ; then
 echo -ne "${BLU_BG}Test Makefile bonus:${END} \t\t\t\t\t\t-->"
 make bonus 1>/dev/null 2> stderrmake.txt
-make bonus > stdoutmakebis.txt
+make bonus > stdoutmakebis.txt 2>&1
 [[ -s stderrmake.txt ]] && echo -ne "${RED} make bonus wrote on std err${END}" || echo -ne "${GREEN} no make bonus error${END}" 
 echo -ne " -- "
 cat stdoutmakebis.txt | egrep -viq "(nothin|already)" && echo -e "${RED}makefile relinks on bonus?${END}" || echo -e "${GREEN}no relink on bonus${END}"
