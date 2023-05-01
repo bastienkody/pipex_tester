@@ -71,8 +71,8 @@ rm -rf stderrmake.txt stdoutmakebis.txt
 ( make fclean && make ) >/dev/null 2>&1 
 fi
 
-[[ ! -f pipex ]] && echo -e "${RED_BG}No file 'pipex'. Tester exiting.${END}" && make fclean >/dev/null 2>&1 && exit
-[[ ! -x pipex ]] && echo -e "${RED_BG}$USER has not execution rights on 'pipex'. Tester exiting.${END}" && make fclean >/dev/null 2>&1 && exit
+[[ ! -f pipex ]] && { echo -e "${RED_BG}No file 'pipex'. Tester exiting.${END}" && make fclean >/dev/null 2>&1 && exit }
+[[ ! -x pipex ]] && { echo -e "${RED_BG}$USER has not execution rights on 'pipex'. Tester exiting.${END}" && make fclean >/dev/null 2>&1 && exit }
 
 #arg nb problem
 echo -ne "${BLU_BG}Test arg nb (<4):${END} \t\t\t\t\t\t-->"
