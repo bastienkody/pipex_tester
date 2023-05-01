@@ -2,8 +2,11 @@
 42 project 'pipex' tester - testeur du projet 42 'pipex'
 
 # Installation
-Git clone the project into your pipex repo : `git clone git@github.com:bastienkody/pipex_tester.git`
-Copy the tester into your repo : `cp pipex_tester/tester_pipex.sh ./`
+Git clone the project into your pipex repo : 
+	`git clone git@github.com:bastienkody/pipex_tester.git`
+
+Copy the tester into your repo :
+	`cp pipex_tester/tester_pipex.sh ./`
 
 # Usage
 Run all tests : `bash tester_pipex.sh`
