@@ -19,7 +19,10 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 
 * valgrind tests only if linux kernel
 
-* to be corrected : infinite loop if commands not run silmutaneously
+# Problems
+* infinite loop if commands not run silmutaneously : must launch process and set a timeout
+
+* if segfault, the script writes on std err and it destoyes display. should i redirect script std-err? then i cant get the "segfault" error on the appropriate test to ...
 
 # Tests
 ## Mandatory ##
