@@ -1,8 +1,9 @@
 # pipex_tester
 42 project 'pipex' tester - testeur du projet 42 'pipex'
 
-# Download
+# Installation
 Git clone the project into your pipex repo : `git clone git@github.com:bastienkody/pipex_tester.git`
+Copy the tester into your repo : cp pipex_tester/tester_pipex.sh ./
 
 # Usage
 Run all tests : `bash tester_pipex.sh`
@@ -17,6 +18,8 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 * works on unix systems (at least mac and debian/ubu)
 
 * valgrind tests only if linux kernel
+
+* to be corrected : infinite loop if commands not run silmutaneously
 
 # Tests
 ## Mandatory ##
