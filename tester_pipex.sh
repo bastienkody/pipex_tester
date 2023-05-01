@@ -373,7 +373,7 @@ env -i ./pipex Makefile "cat" "echo yo" outf > stderr.txt 2>&1
 code=$(echo $?)
 [[ -f outf ]] && cat outf | grep -q yo && ( echo -ne "${GREEN}OK - WOW t'es chaud, explique moi stp!${END}" && [[ $code -eq 0 ]] && echo -e " ${GREEN}(return status == 0)${END}" || echo -e " ${YEL}(return status != 0)${END}" )
 [[ -f stderr.txt && $(cat stderr.txt | grep -ic "command not found") -eq 2 ]] && echo -ne "${GREEN}OK${END}"
-[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr -d "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
 [[ -f outf ]] && cat outf | grep -q yo ||( [[ $code -eq 127 ]] && echo -e " ${GREEN}(+ return status == 127)${END}" || echo -e " ${YEL}(- return status != 127)${END}" )
 rm -f outf stderr.txt
 
@@ -381,7 +381,7 @@ echo -ne "Test 2 : env -i ./pipex Makefile ${bin_path}/cat ${bin_path}/cat outf\
 env -i ./pipex Makefile "${bin_path}/cat" "${bin_path}/cat" outf > stderr.txt 2>&1
 code=$(echo $?)
 diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
-[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg.*fault|dump" |wc -l|tr "[:blank:]") -gt 0 ]] && echo -ne "${RED}KO segfault${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg.*fault|dump" |wc -l|tr -d "[:blank:]") -gt 0 ]] && echo -ne "${RED}KO segfault${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf stderr.txt
 
@@ -396,7 +396,7 @@ code=$(echo $?)
 PATH=$tmp_PATH && export PATH
 [[ -f stderr.txt && $(cat stderr.txt | grep -ic "command not found") -eq 2 ]] && echo -ne "${GREEN}OK${END}"
 [[ -f stderr.txt && $(cat stderr.txt | wc -l) -ne 2 ]] && echo -ne "${YEL}KO (- not two lines written to stderr)${END}"
-[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr -d "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
 [[ $code -eq 127 ]] && echo -e " ${GREEN}(+ return status == 127)${END}" || echo -e " ${YEL}(- return status != 127)${END}"
 rm -f outf stderr.txt
 
@@ -406,7 +406,7 @@ unset PATH
 code=$(echo $?)
 PATH=$tmp_PATH && export PATH
 diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
-[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
+[[ -f stderr.txt && $(cat stderr.txt | egrep -i "seg,*fault|dump" |wc -l|tr -d "[:blank:]") -gt 0  ]] && echo -ne "${RED}KO segfault${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf stderr.txt
 
