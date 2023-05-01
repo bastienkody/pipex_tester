@@ -50,7 +50,7 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 * Multi cmd
 * heredoc
 
-_Could not find a way to send EOF to the pipex here_doc to simulate ctrl+d (wich is not a signal). Please make an issue if you can!__
+_Could not find a way to send EOF to the pipex here_doc to simulate ctrl+d (wich is not a signal). Please make an issue if you can!_
 
 ![alt text](https://github.com/bastienkody/pipex_tester/blob/main/imgs/bonus_tests.png)
 
