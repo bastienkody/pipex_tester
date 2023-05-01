@@ -3,7 +3,7 @@
 
 # Installation
 Git clone the project into your pipex repo : `git clone git@github.com:bastienkody/pipex_tester.git`
-Copy the tester into your repo : cp pipex_tester/tester_pipex.sh ./
+Copy the tester into your repo : `cp pipex_tester/tester_pipex.sh ./`
 
 # Usage
 Run all tests : `bash tester_pipex.sh`
@@ -12,7 +12,9 @@ Run mandatory tests : `bash tester_pipex -m`
 
 Run mandatory + bonus tests : `bash tester_pipex -mb`
 
-# Details
+# Details - requirement
+* the exec must be in the main repo (beside the makefile) and be named 'pipex'. If not, it's easier to modify your Makefile than the tester ... 
+
 * undefined behaviours if not run with bash (ko with sh, few err with zsh)
 
 * works on unix systems (at least mac and debian/ubu)
