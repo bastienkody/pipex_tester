@@ -4,25 +4,6 @@
 pipex_bonus=pipex_bonus
 rule_bonus=bonus
 
-# machine spec
-bin_path=/usr/bin
-uname -s | grep -qi darwin && os=mac && ls_path=/bin && cat_path=/bin
-uname -s | grep -qi linux && os=linux && cat_path=/usr/bin && ls_path=/usr/bin
-
-# mac os : timeout command install via homebrew 
-if [[ $os == "mac" ]] ; then
-exit
-echo -e "Missing command 'timeout'. Trying to install via homebrew ..."
-[[ ! which brew ]] && echo "Missing homebrew (needed for timeout installation). Please install Homebrew and restarts the tester" && exit 1
-echo -e "Homebrew found - starting installation ..."
-brew install coreutils 
-which timeout && echo -e "Timeout is installed. Tester starting ..." || { echo -e "Timeout still not found. Please restarts the sell and try again. If the error persists please install timeout by yourself." ; exit 2 ; } 
-
-fi
-
-# bonus rule ?
-cat Makefile | grep -q "${rule_bonus}:" && bonus=1 || bonus=0
-
 # const
 vlgppx='/usr/bin/valgrind --trace-children=yes --leak-check=full --track-fds=yes'
 ITA="\033[3m"
@@ -34,6 +15,26 @@ END="\033[m"
 BLU_BG="\033[44m"
 YEL_BG="\033[43;1m"
 RED_BG="\033[41;1m"
+
+# machine spec
+bin_path=/usr/bin
+uname -s | grep -qi darwin && os=mac && ls_path=/bin && cat_path=/bin
+uname -s | grep -qi linux && os=linux && cat_path=/usr/bin && ls_path=/usr/bin
+
+# mac os : timeout command install via homebrew 
+if [[ $os == "mac" && ! $(which timeout) ]] ; then
+echo -e "Missing command 'timeout'. Trying to install via homebrew ..."
+[[ ! $(which brew) ]] && echo "Missing homebrew (needed for timeout installation). Please install Homebrew and restarts the tester" && exit 1
+echo -e "Homebrew found - starting installation ..."
+brew install coreutils 
+which timeout && echo -e "Timeout is installed. Tester starting ..." || { echo -e "Timeout still not found. Please restarts the sell and try again. If the error persists please install timeout by yourself." ; exit 2 ; } 
+
+fi
+
+# bonus rule ?
+cat Makefile | grep -q "${rule_bonus}:" && bonus=1 || bonus=0
+
+
 
 # print intro
 echo "------------------------------------"
