@@ -6,7 +6,7 @@ uname -s | grep -qi darwin && os=mac && ls_path=/bin && cat_path=/bin
 uname -s | grep -qi linux && os=linux && cat_path=/usr/bin && ls_path=/usr/bin
 
 # bonus info config (exec name + rule bonus name)
-pipex_bonus=pipex
+pipex_bonus=pipex_bonus
 rule_bonus=bonus
 
 # bonus rule ?
@@ -70,7 +70,7 @@ make ${rule_bonus} 1>/dev/null 2> stderrmake.txt
 make ${rule_bonus} > stdoutmakebis.txt 2>&1
 [[ -s stderrmake.txt ]] && echo -ne "${RED} make ${rule_bonus} wrote on std err${END}" || echo -ne "${GREEN} no make ${rule_bonus} error${END}" 
 echo -ne " -- "
-cat stdoutmakebis.txt | egrep -viq "(nothin|already|date)" && echo -e "${RED}makefile relinks on bonus?${END}" || echo -e "${GREEN}no relink on bonus${END}"
+cat stdoutmakebis.txt | egrep -viq "(nothin|already|date)" && echo -ne "${RED}makefile relinks on bonus?${END}" || echo -ne "${GREEN}no relink on bonus${END}"
 echo -ne " -- "
 [[ -f $pipex_bonus && -x $pipex_bonus ]] && echo -e "${GREEN}exec named $pipex_bonus${END}" || echo -e "${RED}no exec file found named $pipex_bonus${END}"
 rm -rf stderrmake.txt stdoutmakebis.txt
@@ -306,7 +306,7 @@ rm -f outf
 echo -e "${BLU_BG}Concurrency of cmds:${END}"
 
 echo -ne "Test 1 : ./pipex Makefile yes "echo yo" outf \t\t\t--> "
-./pipex Makefile "yes" "echo yo" outf >/dev/null 2>&1 
+timeout 5 ./pipex Makefile "yes" "echo yo" outf >/dev/null 2>&1 
 code=$(echo $?)
 [[ -f outf && $(cat outf) -eq "yo" ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
