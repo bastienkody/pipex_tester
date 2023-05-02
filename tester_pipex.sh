@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # bonus info config (exec name + rule bonus name)
-pipex_bonus=pipex_bonus
-rule_bonus=bonus
+pipex_bonus=pipex
+rule_bonus=
 
 # const
 vlgppx='/usr/bin/valgrind --trace-children=yes --leak-check=full --track-fds=yes'
@@ -27,14 +27,11 @@ echo -e "Missing command 'timeout'. Trying to install via homebrew ..."
 [[ ! $(which brew) ]] && echo "Missing homebrew (needed for timeout installation). Please install Homebrew and restarts the tester" && exit 1
 echo -e "Homebrew found - starting installation ..."
 brew install coreutils 
-which timeout && echo -e "Timeout is installed. Tester starting ..." || { echo -e "Timeout still not found. Please restarts the sell and try again. If the error persists please install timeout by yourself." ; exit 2 ; } 
-
+which timeout && echo -e "Timeout is installed. Tester starting ..." || { echo -e "Timeout still not found. Please restarts the sell and try again. If the error persists please install timeout by yourself." ; exit 2 ; }
 fi
 
 # bonus rule ?
 cat Makefile | grep -q "${rule_bonus}:" && bonus=1 || bonus=0
-
-
 
 # print intro
 echo "------------------------------------"
@@ -333,9 +330,8 @@ t2=$(date +%s)
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf
 
-# TEST 3 ET 4 : risque de faire planter le testeur ... mettre un timeout + kill yes process if ko
 echo -ne "Test 3 : ./pipex Makefile "yes" "cati" outf \t\t\t--> "
-./pipex Makefile "yes" "cati" outf 2> stderr.txt
+timeout --preserve-status 2 ./pipex Makefile "yes" "cati" outf 2> stderr.txt
 code=$(echo $?)
 [[ -s outf ]] || echo -ne "${GREEN}OK${END}"
 [[ -s outf ]] && echo -ne "${RED}KO${END}"
@@ -345,13 +341,12 @@ rm -f stderr.txt outf
 
 echo -ne "Test 4 : ./pipex Makefile "yes" "cati" outfile_no_w \t\t--> "
 touch outfile_no_w && chmod u-w outfile_no_w
-./pipex Makefile "yes" "cati" outfile_no_w 2> stderr.txt
+timeout --preserve-status 2 ./pipex Makefile "yes" "cati" outfile_no_w 2> stderr.txt
 code=$(echo $?)
-#timeout stuff
 echo -ne "${GREEN}OK${END}"
 [[ $(cat stderr.txt | grep -i "permission denied") ]] && echo -ne "${GREEN} (+ err msg)${END}" || echo -ne "${YEL} (- err msg without \"Permission denied\")${END}"
 [[ $code -eq 1 ]] && echo -e "${GREEN}(+ return status == 1)${END}" || echo -e "${YEL}(- return status != 1)${END}"
-rm -f stderr.txt outf
+rm -f stderr.txt outf*
 
 # executable (+ pas les droits)
 echo -e "${BLU_BG}Custom exec:${END}"
@@ -756,7 +751,7 @@ rm -f outf* 't\ file'
 
 # fd limit (multi cmd bonus must be done)
 # lets asumme : 2 fd (for in/outfile) + 2 fd * (nb of cmd -1) --> 510 cmd ok ; 511 cmds == 1024 fd
-[[ $bonus -eq 1 ]] && make ${rule_bonus} >/dev/null 2>&1
+[[ $bonus -eq 1 ]] && make ${rule_bonus} #>/dev/null 2>&1
 echo -e "${BLU_BG}Reaching 1024 fd openned:${END}"
 
 echo -ne "Test 1 : ./$pipex_bonus Makefile cat (510 times) outf \t--> "
