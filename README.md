@@ -16,9 +16,9 @@ Run mandatory tests : `bash tester_pipex -m`
 Run mandatory + bonus tests : `bash tester_pipex -mb`
 
 # Details - requirement
-* the exec must be in the main repo (beside the makefile) and be named 'pipex'
+* the exec must be in the main repo (beside the makefile) and be named **'pipex'**
 
-* by default bonus exec is 'pipex' and bonus rule is 'bonus'. You may modifiy these at the beginning of tester_pipex.sh :
+* by default bonus exec is **'pipex'** and bonus rule is **'bonus'**. You may modifiy these at the beginning of tester_pipex.sh :
 	* `pipex_bonus=pipex`
 	* `rule_bonus=bonus`
 
@@ -37,13 +37,13 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 
 # Tests
 ## Mandatory ##
-* Norminette on .c and .h files
+* **Norminette** on .c and .h files
 
-* Makefile : checks error + relinks on rule "make" and "make bonus" (if exists)
+* **Makefile** : checks **error** (on stderr) + **relinks** on rule "make" and "make bonus" (if exists)
 
 * Checks the exec name : 'pipex'
 
-* Basics : 
+* **Basics** : 
 	* two commands no parameter + with parameters
 	* commands with absolute path
 	* unexisting commands + unexisting absolute path commands
@@ -62,8 +62,8 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 
 ## Bonus ##
 **Warning: by default your bonus exec must be named 'pipex'.**
-* Multi cmd
-* heredoc
+* **Multi cmd**
+* **heredoc**
 
 _Could not find a way to send EOF to the pipex here_doc to simulate ctrl+d (wich is not a signal) via a script. Please make an issue if you can!_
 
@@ -71,9 +71,9 @@ _Could not find a way to send EOF to the pipex here_doc to simulate ctrl+d (wich
 
 ## Additional tests ##
 _These tests are not all required to pass to validate pipex. Altough you should not **segfault**_
-* Single quotes parsing : single quotes used in commands arguments
-* Spaces parsing : can you manage spaces in arguments (single quotes must be managed)
-* Backslash parsing : how backlashes are treated in arguments (single q + spaces must be managed)
-* Fd limit : how many pipes are created - do you segfault at or after 1024 fd ?
+* **Single quotes** parsing : single quotes used in commands arguments
+* **Spaces** parsing : can you manage spaces in arguments (single quotes must be managed)
+* **Backslash** parsing : how backlashes are treated in arguments (single q + spaces must be managed)
+* **Fd limit** : how many pipes are created - do you segfault at or after 1024 fd ?
 
 ![alt text](https://github.com/bastienkody/pipex_tester/blob/main/imgs/additionnal_tests.png)
