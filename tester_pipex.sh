@@ -10,7 +10,8 @@ uname -s | grep -qi darwin && os=mac && ls_path=/bin && cat_path=/bin
 uname -s | grep -qi linux && os=linux && cat_path=/usr/bin && ls_path=/usr/bin
 
 # mac os : timeout command install via homebrew 
-if [[ $os == "mac" && ! which timeout >/dev/null 2>&1 ]] ; then
+if [[ $os == "mac" ]] ; then
+exit
 echo -e "Missing command 'timeout'. Trying to install via homebrew ..."
 [[ ! which brew ]] && echo "Missing homebrew (needed for timeout installation). Please install Homebrew and restarts the tester" && exit 1
 echo -e "Homebrew found - starting installation ..."
