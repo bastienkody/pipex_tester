@@ -30,6 +30,8 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 
 * valgrind tests only if linux kernel
 
+* on mac os, you might need homebrew installed to install timeout command
+
 # Problems
 * infinite loop if commands not run silmutaneously : must launch process and set a timeout
 

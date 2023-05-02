@@ -1,13 +1,23 @@
 #! /bin/bash
 
-# machine info for bin_path (at least ok for ls, ko for touch)
+# bonus info config (exec name + rule bonus name)
+pipex_bonus=pipex_bonus
+rule_bonus=bonus
+
+# machine spec
 bin_path=/usr/bin
 uname -s | grep -qi darwin && os=mac && ls_path=/bin && cat_path=/bin
 uname -s | grep -qi linux && os=linux && cat_path=/usr/bin && ls_path=/usr/bin
 
-# bonus info config (exec name + rule bonus name)
-pipex_bonus=pipex_bonus
-rule_bonus=bonus
+# mac os : timeout command install via homebrew 
+if [[ $os == "mac" && ! which timeout >/dev/null 2>&1 ]] ; then
+echo -e "Missing command 'timeout'. Trying to install via homebrew ..."
+[[ ! which brew ]] && echo "Missing homebrew (needed for timeout installation). Please install Homebrew and restarts the tester" && exit 1
+echo -e "Homebrew found - starting installation ..."
+brew install coreutils 
+which timeout && echo -e "Timeout is installed. Tester starting ..." || { echo -e "Timeout still not found. Please restarts the sell and try again. If the error persists please install timeout by yourself." ; exit 2 ; } 
+
+fi
 
 # bonus rule ?
 cat Makefile | grep -q "${rule_bonus}:" && bonus=1 || bonus=0
@@ -306,7 +316,7 @@ rm -f outf
 echo -e "${BLU_BG}Concurrency of cmds:${END}"
 
 echo -ne "Test 1 : ./pipex Makefile yes "echo yo" outf \t\t\t--> "
-timeout 5 ./pipex Makefile "yes" "echo yo" outf >/dev/null 2>&1 
+timeout --preserve-status 2 ./pipex Makefile "yes" "echo yo" outf >/dev/null 2>&1 
 code=$(echo $?)
 [[ -f outf && $(cat outf) -eq "yo" ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
