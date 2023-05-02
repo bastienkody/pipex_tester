@@ -18,11 +18,11 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 # Details - requirement
 * the exec must be in the main repo (beside the makefile) and be named **'pipex'**
 
-* by default bonus exec is **'pipex'** and bonus rule is **'bonus'**. You may modifiy these at the beginning of tester_pipex.sh :
-	* `pipex_bonus=pipex`
-	* `rule_bonus=bonus`
+* you handle bonus cases but have no bonus rule? The tester will try bonuses with the exec 'pipex' outputed from rule 'make pipex'
 
-* you handle bonus cases but have no bonus rule? It's ok, the tester will try bonuses with the exec 'pipex' outputed from rule 'make'
+* If you have bonus names, you may specify these at the beginning of tester_pipex.sh :
+	* exec name default : `pipex_bonus=pipex` (modified example: `pipex_bonus=pipex_bonus`)
+	* bonus rule default : `rule_bonus=pipex` (modified example: `rule_bonus=bonus`)
 
 * undefined behaviours if not run with bash
 
@@ -30,12 +30,10 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 
 * valgrind tests only if linux kernel
 
-* on mac os, you might need homebrew installed to install timeout command
+* on mac os, there is no command 'timeout' by default ; the tester will try to install it (coreutils) if you have Homebrew 
 
 # Problems
-* infinite loop if commands not run silmutaneously : must launch process and set a timeout
-
-* if segfault, the script writes on std err and it destoyes display. should i redirect script std-err? then i cant get the "segfault" error on the appropriate test to ...
+* if segfault, the script writes on std err and it destoys display. should i redirect script std-err? then i cant get the "segfault" error on the appropriate test to ... 
 
 # Tests
 ## Mandatory ##
@@ -47,18 +45,16 @@ Run mandatory + bonus tests : `bash tester_pipex -mb`
 
 * **Basics** : 
 	* two commands no parameter + with parameters
-	* commands with absolute path
+	* commands with absolute path + custom exec a.out
 	* unexisting commands + unexisting absolute path commands
 	* empty commands (only spaces)
+	* commands with no execution right
 	* infile with no reading right
 	* outfile with no writing right
 	* outfile created before any command execution
 	* concurrency of commands (vs one after another)
-	* custom exec ./a.out
-	* empty environnement (env -i)
-	* no PATH (unset PATH)
-	* leaks on all process
-	* extra opened fd on all process
+	* empty environnement (env -i) + no PATH (unset PATH)
+	* valgrind : leaks + extra opened fd on all process
 
 ![alt text](https://github.com/bastienkody/pipex_tester/blob/main/imgs/mandatory_tests.png)
 
