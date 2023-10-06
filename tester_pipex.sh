@@ -351,7 +351,9 @@ rm -f stderr.txt outf*
 # executable (+ pas les droits)
 echo -e "${BLU_BG}Custom exec:${END}"
 
-echo -e "#include <stdio.h>\nint main(void){printf(\"yo\");}" > main.c && gcc main.c && gcc -o ls main.c && rm main.c
+echo -e "#include <stdio.h>\nint main(void){printf(\"yo\");}" > main.c 
+mkdir -p dir1/dir2 ; gcc main.c ; gcc -o ls main.c ; gcc -o dir1/dir2/ls main.c
+rm main.c
 
 echo -ne "Test 1 : ./pipex Makefile ./a.out cat outf \t\t\t--> "
 ./pipex Makefile "./a.out" "cat" outf 2> stderr.txt
@@ -369,7 +371,15 @@ code=$(echo $?)
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -f stderr.txt ls outf
 
-echo -ne "Test 3 : ./pipex Makefile ls ./a.out (chmod u-x) outf \t\t--> "
+echo -ne "Test 3 : ./pipex Makefile date dir1/dir2/ls outf\t\t--> "
+./pipex Makefile "date" "dir1/dir2/ls" outf 2> stderr.txt
+code=$(echo $?)
+[[  -f outf && $(cat outf) == "yo" ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
+[[ -s stderr.txt ]] && echo -ne "${RED} KO : you wrote on stderr${END}"
+[[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
+rm -rf stderr.txt dir1/ outf
+
+echo -ne "Test 4 : ./pipex Makefile ls ./a.out (chmod u-x) outf \t\t--> "
 chmod u-x a.out
 ./pipex Makefile "ls" "./a.out" outf 2> stderr.txt
 code=$(echo $?)
@@ -505,6 +515,59 @@ rm -f outf a.out vlg.txt
 
 fi
 
+
+#process and zombies 
+# pipex children ppid is not pipex but the pid of bash that launched the tester!
+# look for all bash children in top using $$. Get rid of top, grep and bash from results
+# awk to get zombies pid and name ; killing them
+echo -e "${BLU_BG}Zombies (children process not waited by pipex):${END}"
+rm -rf *top_result zombies_test*
+
+echo -ne "Test 1 : ./pipex Makefile "sleep 1" "sleep 1" outf \t\t\t--> "
+./pipex Makefile "sleep 1" "sleep 1" outf
+if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
+else top -l1 | grep $$ > top_result
+fi
+cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
+[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+if [[ -s clean_top_result ]] ; then 
+	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+	kill $(cat clean_top_result | awk '{ print $1 }')
+	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test1')${END}"
+	cat clean_top_result > zombies_test1
+fi
+rm -rf *top_result outf 
+
+echo -ne "Test 2 : ./pipex Makefile cat cat outf \t\t\t\t--> "
+./pipex Makefile cat cat outf
+if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
+else top -l1 | grep $$ > top_result
+fi
+cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
+[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+if [[ -s clean_top_result ]] ; then 
+	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+	kill $(cat clean_top_result | awk '{ print $1 }')
+	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test2')${END}"
+	cat clean_top_result > zombies_test2
+fi
+rm -rf *top_result outf
+
+echo -ne "Test 3 : ./pipex bad_infile ls bad_cmd outf \t\t\t--> "
+./pipex bad_infile ls bad_cmd outf > /dev/null 2>&1
+if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
+else top -l1 | grep $$ > top_result
+fi
+cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
+[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+if [[ -s clean_top_result ]] ; then 
+	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+	kill $(cat clean_top_result | awk '{ print $1 }')
+	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test3')${END}"
+	cat clean_top_result > zombies_test3
+fi
+rm -rf *top_result outf
+
 # -----------------------------------------------------------------------------------------------------------------------------------------
 # BONUS TESTS : 
 # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -553,8 +616,23 @@ diff t2_expected t2_output >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || ech
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -f t2_* 
 
+echo -ne "Test 5 : ./pipex bad_infile ls bad_cmd date cat outf \t\t\t\t--> "
+./pipex bad_infile ls bad_cmd date cat outf > /dev/null 2>&1
+if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
+else top -l1 | grep $$ > top_result
+fi
+cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
+[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+if [[ -s clean_top_result ]] ; then 
+	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+	kill $(cat clean_top_result | awk '{ print $1 }')
+	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test5')${END}"
+	cat clean_top_result > zombies_test5
+fi
+rm -rf *top_result outf
+
 if [[ $os == "linux" ]] ; then
-echo -ne "Test 5 : valgrind ./${pipex_bonus} Makefile cat cat cat cat cat cat outf\t\t\t--> "
+echo -ne "Test 6 : valgrind ./${pipex_bonus} Makefile cat cat cat cat cat cat outf\t\t\t--> "
 $vlgppx ./${pipex_bonus} Makefile cat cat cat cat cat cat outf > vlg.txt 2>&1
 leaks=$(cat vlg.txt | grep -A 1 "HEAP SUMMARY" | tail -n1 | grep -o "[0-9]* bytes" | cut -d' ' -f1)
 fd=$(cat vlg.txt | grep -o  "Open file descriptor [0-9]*:" | sort | uniq | wc -l | tr -d "[:blank:]")
@@ -652,7 +730,7 @@ fi
 
 
 # -----------------------------------------------------------------------------------------------------------------------------------------
-# ADDITIONNAL TESTS : mostly about parsing. Note that double quotes cannot be parsed using bash grammar
+# ADDITIONNAL TESTS : mostly about parsing. Note that double quotes cannot be parsed using bash grammar bc of project's argument format
 # -----------------------------------------------------------------------------------------------------------------------------------------
 if [[ ! $1 =~ -m$|-mandatory$ && ! $1 =~ -mb$ ]] ; then
 
@@ -782,7 +860,7 @@ echo -ne "Test 1 : ./$pipex_bonus Makefile cat (510 times) outf \t--> "
 code=$(echo $?)
 diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 0 ]] && echo -ne " ${GREEN}(+ return status == 0)${END}" || echo -ne " ${YEL}(- return status != 0)${END}"
-cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} No segfault${END}"
+cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} (no segfault)${END}"
 rm -f outf err
 
 echo -ne "Test 2 : ./$pipex_bonus Makefile cat (511 times) outf \t--> "
@@ -810,9 +888,11 @@ echo -ne "Test 2 : ./$pipex_bonus Makefile cat (511 times) outf \t--> "
  cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
  cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
  cat cat cat cat cat cat cat outf >err 2>&1
+code=$(echo $?)
 diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${YEL}KO${END}"
+[[ $code -eq 0 ]] && echo -ne " ${GREEN}(+ return status == 0)${END}" || echo -ne " ${YEL}(- return status != 0)${END}"
 cat err | grep -i "open" | grep -qi "files" && echo -ne "${GREEN} (err msg with open files)${END}"
-cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} No segfault${END}"
+cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} (no segfault)${END}"
 rm -f outf err
 
 echo -ne "Test 3 : ./$pipex_bonus Makefile cat (521 times) outf \t--> "
@@ -840,10 +920,50 @@ echo -ne "Test 3 : ./$pipex_bonus Makefile cat (521 times) outf \t--> "
  cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
  cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
  cat cat cat cat cat cat cat outf >err 2>&1
+code=$(echo $?)
 diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${YEL}KO${END}"
+[[ $code -eq 0 ]] && echo -ne " ${GREEN}(+ return status == 0)${END}" || echo -ne " ${YEL}(- return status != 0)${END}"
 cat err | grep -i "open" | grep -qi "files" && echo -ne "${GREEN} (err msg with open files)${END}"
-cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} No segfault${END}"
+cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} (no segfault)${END}"
 rm -f outf err
+
+echo -ne "Test 4 : ./$pipex_bonus Makefile cat (521 times) outf \t--> "
+./$pipex_bonus Makefile cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+ cat cat cat cat cat cat cat outf >err 2>&1
+if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
+else top -l1 | grep $$ > top_result
+fi
+cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
+[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+if [[ -s clean_top_result ]] ; then 
+	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+	kill $(cat clean_top_result | awk '{ print $1 }')
+	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test521')${END}"
+	cat clean_top_result > zombies_test521
+fi
+rm -rf *top_result outf err
 
 fi
 
