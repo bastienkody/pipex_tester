@@ -517,55 +517,33 @@ fi
 
 
 #process and zombies 
+
 # pipex children ppid is not pipex but the pid of bash that launched the tester!
 # look for all bash children in top using $$. Get rid of top, grep and bash from results
-# awk to get zombies pid and name ; killing them
+# awk to get zombies pid and name ; killing them --> this lead to kill other process absolutely not related to pipex, i dont know why
+
+# other method using ps and the last pid of the last pipeline launched in bg via $!
 echo -e "${BLU_BG}Zombies (children process not waited by pipex):${END}"
 rm -rf *top_result zombies_test*
 
 echo -ne "Test 1 : ./pipex Makefile "sleep 1" "sleep 1" outf \t\t\t--> "
-./pipex Makefile "sleep 1" "sleep 1" outf
-if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
-else top -l1 | grep $$ > top_result
-fi
-cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
-[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-if [[ -s clean_top_result ]] ; then 
-	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-	kill $(cat clean_top_result | awk '{ print $1 }')
-	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test1')${END}"
-	cat clean_top_result > zombies_test1
-fi
-rm -rf *top_result outf 
+./pipex Makefile "sleep 1" "sleep 1" outf &
+ppid=$! 
+sleep 1
+ps | grep ppid | egrep -vi "(grep|ps|bash)" > ps_result
+[[ -s ps_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+#if [[ -s ps_result ]] ; then
+#	zombies=$(cat ps_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+#	kill $(cat ps_result | awk '{ print $1 }')
+#	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test1')${END}"
+#	cat ps_result > zombies_test1
+#fi
+rm -rf *ps_result outf 
 
 echo -ne "Test 2 : ./pipex Makefile cat cat outf \t\t\t\t--> "
-./pipex Makefile cat cat outf
-if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
-else top -l1 | grep $$ > top_result
-fi
-cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
-[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-if [[ -s clean_top_result ]] ; then 
-	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-	kill $(cat clean_top_result | awk '{ print $1 }')
-	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test2')${END}"
-	cat clean_top_result > zombies_test2
-fi
 rm -rf *top_result outf
 
 echo -ne "Test 3 : ./pipex bad_infile ls bad_cmd outf \t\t\t--> "
-./pipex bad_infile ls bad_cmd outf > /dev/null 2>&1
-if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
-else top -l1 | grep $$ > top_result
-fi
-cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
-[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-if [[ -s clean_top_result ]] ; then 
-	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-	kill $(cat clean_top_result | awk '{ print $1 }')
-	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test3')${END}"
-	cat clean_top_result > zombies_test3
-fi
 rm -rf *top_result outf
 
 # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -616,20 +594,20 @@ diff t2_expected t2_output >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || ech
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -f t2_* 
 
-echo -ne "Test 5 : ./pipex bad_infile ls bad_cmd date cat outf \t\t\t\t--> "
-./pipex bad_infile ls bad_cmd date cat outf > /dev/null 2>&1
-if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
-else top -l1 | grep $$ > top_result
-fi
-cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
-[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-if [[ -s clean_top_result ]] ; then 
-	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-	kill $(cat clean_top_result | awk '{ print $1 }')
-	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test5')${END}"
-	cat clean_top_result > zombies_test5
-fi
-rm -rf *top_result outf
+#echo -ne "Test 5 : ./pipex bad_infile ls bad_cmd date cat outf \t\t\t\t--> "
+#./pipex bad_infile ls bad_cmd date cat outf > /dev/null 2>&1
+#if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
+#else top -l1 | grep $$ > top_result
+#fi
+#cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
+#[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+#if [[ -s clean_top_result ]] ; then 
+#	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+#	kill $(cat clean_top_result | awk '{ print $1 }')
+#	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test5')${END}"
+#	cat clean_top_result > zombies_test5
+#fi
+#rm -rf *top_result outf
 
 if [[ $os == "linux" ]] ; then
 echo -ne "Test 6 : valgrind ./${pipex_bonus} Makefile cat cat cat cat cat cat outf\t\t\t--> "
@@ -927,43 +905,43 @@ cat err | grep -i "open" | grep -qi "files" && echo -ne "${GREEN} (err msg with 
 cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} (no segfault)${END}"
 rm -f outf err
 
-echo -ne "Test 4 : ./$pipex_bonus Makefile cat (521 times) outf \t--> "
-./$pipex_bonus Makefile cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
- cat cat cat cat cat cat cat outf >err 2>&1
-if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
-else top -l1 | grep $$ > top_result
-fi
-cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
-[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-if [[ -s clean_top_result ]] ; then 
-	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-	kill $(cat clean_top_result | awk '{ print $1 }')
-	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test521')${END}"
-	cat clean_top_result > zombies_test521
-fi
-rm -rf *top_result outf err
+#echo -ne "Test 4 : ./$pipex_bonus Makefile cat (521 times) outf \t--> "
+#./$pipex_bonus Makefile cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
+# cat cat cat cat cat cat cat outf >err 2>&1
+#if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
+#else top -l1 | grep $$ > top_result
+#fi
+#cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
+#[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
+#if [[ -s clean_top_result ]] ; then 
+#	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
+#	kill $(cat clean_top_result | awk '{ print $1 }')
+#	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test521')${END}"
+#	cat clean_top_result > zombies_test521
+#fi
+#rm -rf *top_result outf err
 
 fi
 
