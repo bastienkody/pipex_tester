@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# bonus info config (exec name + rule bonus name)
+# bonus info config (CHANGE HERE if your bonus exec/rule is not 'pipex')
 pipex_bonus=pipex
 rule_bonus=pipex
 
@@ -23,10 +23,10 @@ uname -s | grep -qi linux && os=linux && cat_path=/usr/bin && ls_path=/usr/bin
 
 # mac os : timeout command install via homebrew 
 if [[ $os == "mac" && ! $(which timeout) ]] ; then
-echo -e "Missing command 'timeout'. Trying to install via homebrew ..."
+echo -e "Missing command 'timeout' on mac os. Trying to install via homebrew ..."
 [[ ! $(which brew) ]] && echo "Missing homebrew (needed for timeout installation). Please install Homebrew and restarts the tester" && exit 1
 echo -e "Homebrew found - starting installation ..."
-brew install coreutils 
+brew install coreutils
 which timeout && echo -e "Timeout is installed. Tester starting ..." || { echo -e "Timeout still not found. Please restarts the sell and try again. If the error persists please install timeout by yourself." ; exit 2 ; }
 fi
 
@@ -42,7 +42,6 @@ echo -e "by $USER on $os os"
 echo -e "made by bguillau (@bastienkody)"
 echo "------------------------------------"
 echo "------------------------------------"
-
 [[ $os != "linux" ]] && echo -e "${ITA}No valgrind testing (uncompatible os)${END}"
 
 # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -161,7 +160,7 @@ rm -f t1_*
 #non existing cmd w/ abs. path
 echo -e "${BLU_BG}Absolut path cmd not found:${END}"
 
-echo -ne "Test 1 : ./pipex Makefile ${bin_path}/lsoip ${bin_path}/cati outf \t--> "
+echo -ne "Test 1 : ./pipex Makefile ${bin_path}/lsoip ${bin_path}/cati outf \t\t--> "
 ${bin_path}/lsoip < Makefile 2>/dev/null | ${bin_path}/cati > outf 2>/dev/null
 ./pipex "Makefile" "${bin_path}/lsoip" "${bin_path}/cati" "outf" 2> stderr.txt
 code=$(echo $?)
@@ -170,7 +169,7 @@ code=$(echo $?)
 [[ $code -eq 127 ]] && echo -e "${GREEN}(+ return status == 127)${END}" || echo -e "${YEL}(- return status != 127)${END}"
 rm -f stderr.txt outf
 
-echo -ne "Test 2 : ./pipex Makefile touch OUI ${bin_path}/cati outf \t\t--> "
+echo -ne "Test 2 : ./pipex Makefile \"touch OUI\" ${bin_path}/cati outf \t\t--> "
 ./pipex "Makefile" "touch OUI" "${bin_path}/cati" "outf" 2> stderr.txt
 code=$(echo $?)
 ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -178,7 +177,7 @@ ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 127 ]] && echo -e "${GREEN}(+ return status == 127)${END}" || echo -e "${YEL}(- return status != 127)${END}"
 rm -f stderr.txt outf OUI
 
-echo -ne "Test 3 : ./pipex Makefile ${bin_path}/cati touch OUI outf \t\t--> "
+echo -ne "Test 3 : ./pipex Makefile ${bin_path}/cati \"touch OUI\" outf \t\t--> "
 ./pipex "Makefile" "${bin_path}/cati" "touch OUI" "outf" 2> stderr.txt
 code=$(echo $?)
 ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -189,7 +188,7 @@ rm -f stderr.txt outf OUI
 #non existing cmd w/ rel. path
 echo -e "${BLU_BG}Cmd not found:${END}"
 
-echo -ne "Test 1 : ./pipex Makefile lsoip cati outf \t\t\t--> "
+echo -ne "Test 1 : ./pipex Makefile lsoip cati outf \t\t\t\t--> "
 lsoip < Makefile 2>/dev/null | cati > t1_expected 2>/dev/null
 ./pipex "Makefile" "lsoip" "cati" "outf" 2> stderr.txt
 code=$(echo $?)
@@ -198,7 +197,7 @@ code=$(echo $?)
 [[ $code -eq 127 ]] && echo -e "${GREEN}(+ return status == 127)${END}" || echo -e "${YEL}(- return status != 127)${END}"
 rm stderr.txt t1_expected outf
 
-echo -ne "Test 2 : ./pipex Makefile touch OUI cati outf \t\t\t--> "
+echo -ne "Test 2 : ./pipex Makefile \"touch OUI\" cati outf \t\t\t--> "
 ./pipex "Makefile" "touch OUI" "cati" "outf" 2> stderr.txt
 code=$(echo $?)
 ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}"  || echo -ne "${RED}KO${END}"
@@ -206,7 +205,7 @@ ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}"  || echo -ne "${RED}KO${END}"
 [[ $code -eq 127 ]] && echo -e "${GREEN}(+ return status == 127)${END}" || echo -e "${YEL}(- return status != 127)${END}"
 rm -f stderr.txt outf OUI
 
-echo -ne "Test 3 : ./pipex Makefile cati touch OUI outf \t\t\t--> "
+echo -ne "Test 3 : ./pipex Makefile cati \"touch OUI\" outf \t\t\t--> "
 ./pipex "Makefile" "cati" "touch OUI" "outf" 2> stderr.txt
 code=$(echo $?)
 ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -217,7 +216,7 @@ rm -f stderr.txt outf OUI
 #empty commands
 echo -e "${BLU_BG}Empty cmd:${END}"
 
-echo -ne "Test 1 : ./pipex Makefile \" \" \" \" outf \t\t\t\t--> "
+echo -ne "Test 1 : ./pipex Makefile \" \" \" \" outf \t\t\t\t\t--> "
 ./pipex Makefile " " " " outf 2> stderr.txt
 code=$(echo $?)
 [[ -s outf ]] || echo -ne "${GREEN}OK${END}"
@@ -226,7 +225,7 @@ code=$(echo $?)
 [[ $code -eq 127 ]] && echo -e "${GREEN}(+ return status == 127)${END}" || echo -e "${YEL}(- return status != 127)${END}"
 rm -f outf stderr.txt
 
-echo -ne "Test 2 : ./pipex Makefile "touch OUI" \" \" outf \t\t\t--> "
+echo -ne "Test 2 : ./pipex Makefile \"touch OUI\" \" \" outf \t\t\t\t--> "
 ./pipex Makefile "touch OUI" " " outf 2> stderr.txt
 code=$(echo $?)
 ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -234,7 +233,7 @@ cat stderr.txt | egrep -qi "command not found" && echo -ne "${GREEN} (+ err msg)
 [[ $code -eq 127 ]] && echo -e "${GREEN}(+ return status == 127)${END}" || echo -e "${YEL}(- return status != 127)${END}"
 rm -f outf stderr.txt outf OUI
 
-echo -ne "Test 3 : ./pipex Makefile \" \" touch OUI outf \t\t\t--> "
+echo -ne "Test 3 : ./pipex Makefile \" \" \"touch OUI\" outf \t\t\t\t--> "
 ./pipex Makefile " " "touch OUI" outf 2> stderr.txt
 code=$(echo $?)
 ls -l | grep -q OUI && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -246,14 +245,14 @@ rm -f outf stderr.txt outf OUI
 echo -e "${BLU_BG}Infile no readable:${END}"
 touch infile_r infile_no_r && chmod u-r infile_no_r
 
-echo -ne "Test 1 : ./pipex infile_r touch truc touch truc2 t1_output\t--> "
+echo -ne "Test 1 : ./pipex infile_r \"touch truc\" \"touch truc2\" t1_output\t\t--> "
 ./pipex infile_r "touch truc" "touch truc2" t1_output >/dev/null 2>&1 
 code=$(echo $?)
 [[ $(ls -l | egrep -c "truc2?") -eq 2 ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f t1_* truc*
 
-echo -ne "Test 2 : ./pipex infile_no_r touch NON touch OUI t2_output\t--> "
+echo -ne "Test 2 : ./pipex infile_no_r \"touch NON\" \"touch OUI\" t2_output\t\t--> "
 ./pipex infile_no_r "touch NOT" "touch OUI" t2_output 2> stderr.txt
 code=$(echo $?)
 [[ !$(ls -l | grep "NOT") && $(ls -l | grep "OUI") ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -261,7 +260,7 @@ code=$(echo $?)
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f stderr.txt t2_* OUI
 
-echo -ne "Test 3 : ./pipex infile_no_r lsop echo yo t2_output\t\t--> "
+echo -ne "Test 3 : ./pipex infile_no_r lsop \"echo yo\" t2_output\t\t\t--> "
 ./pipex infile_no_r "lsop" "echo yo" t2_output 2> stderr.txt
 code=$(echo $?)
 [[ -f t2_output && $(cat t2_output) == "yo" ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -273,14 +272,14 @@ rm -f stderr.txt infile*  t2_*
 echo -e "${BLU_BG}Outfile no writable:${END}"
 touch outfile_w outfile_no_w && chmod u-w outfile_no_w
 
-echo -ne "Test 1 : ./pipex Makefile touch truc touch truc2 outfile_w \t--> "
+echo -ne "Test 1 : ./pipex Makefile \"touch truc\" \"touch truc2\" outfile_w \t\t--> "
 ./pipex Makefile "touch truc" "touch truc2" outfile_w >/dev/null 2>&1 
 code=$(echo $?)
 [[ $(ls -l | egrep "truc2?" | wc -l) -eq 2 ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f truc*
 
-echo -ne "Test 2 : ./pipex Makefile touch OUI touch NON outfile_no_w \t--> "
+echo -ne "Test 2 : ./pipex Makefile \"touch OUI\" \"touch NON\" outfile_no_w \t\t--> "
 ./pipex Makefile "touch OUI" "touch NON" outfile_no_w 2> stderr.txt
 code=$(echo $?)
 [[ !$(ls -l | grep "NOT") && $(ls -l | grep "OUI") ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -288,7 +287,7 @@ code=$(echo $?)
 [[ $code -eq 1 ]] && echo -e "${GREEN}(+ return status == 1)${END}" || echo -e "${YEL}(- return status != 1)${END}"
 rm -f stderr.txt OUI
 
-echo -ne "Test 3 : ./pipex Makefile touch OUI lsop outfile_no_w \t\t--> "
+echo -ne "Test 3 : ./pipex Makefile \"touch OUI\" lsop outfile_no_w \t\t--> "
 ./pipex Makefile "touch OUI" "lsop" outfile_no_w 2> stderr.txt
 code=$(echo $?)
 [[ $(ls -l | grep "OUI") ]] && echo -ne "${GREEN}OK${END}"  || echo -ne "${RED}KO${END}"
@@ -299,13 +298,13 @@ rm -f stderr.txt outfile* OUI
 # outfile created before executing ls
 echo -e "${BLU_BG}Outfile created before exec:${END}"
 
-echo -ne "Test 1 : ./pipex Makefile cat ls outf \t\t\t\t--> "
+echo -ne "Test 1 : ./pipex Makefile cat ls outf \t\t\t\t\t--> "
 rm -f outf
 ./pipex Makefile "cat" "ls" outf 2>/dev/null
 [[ -f outf ]] && cat outf | grep -q "outf" && echo -e "${GREEN}OK${END}" || echo -e "${RED}KO (missing "outf" in ls result)${END}"
 rm -f outf
 
-echo -ne "Test 2 : ./pipex Makefile ls cat outf \t\t\t\t--> "
+echo -ne "Test 2 : ./pipex Makefile ls cat outf \t\t\t\t\t--> "
 rm -f outf
 ./pipex Makefile "ls" "cat" outf 2>/dev/null
 [[ -f outf ]] && cat outf | grep -q "outf" && echo -e "${GREEN}OK${END}" || echo -e "${RED}KO (missing "outf" in ls result)${END}"
@@ -314,14 +313,14 @@ rm -f outf
 #silmultaneous cmd test
 echo -e "${BLU_BG}Concurrency of cmds:${END}"
 
-echo -ne "Test 1 : ./pipex Makefile yes "echo yo" outf \t\t\t--> "
+echo -ne "Test 1 : ./pipex Makefile yes \"echo yo\" outf \t\t\t\t--> "
 timeout --preserve-status 2 ./pipex Makefile "yes" "echo yo" outf >/dev/null 2>&1 
 code=$(echo $?)
 [[ -f outf && $(cat outf) -eq "yo" ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf
 
-echo -ne "Test 2 : ./pipex Makefile "sleep 2" "sleep 1" outf \t\t\t--> "
+echo -ne "Test 2 : ./pipex Makefile \"sleep 2\" \"sleep 1\" outf \t\t\t--> "
 t1=$(date +%s)
 ./pipex Makefile "sleep 2" "sleep 1" outf 2>/dev/null
 code=$(echo $?)
@@ -330,7 +329,7 @@ t2=$(date +%s)
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf
 
-echo -ne "Test 3 : ./pipex Makefile "yes" "cati" outf \t\t\t--> "
+echo -ne "Test 3 : ./pipex Makefile yes cati outf \t\t\t\t--> "
 timeout --preserve-status 2 ./pipex Makefile "yes" "cati" outf 2> stderr.txt
 code=$(echo $?)
 [[ -s outf ]] || echo -ne "${GREEN}OK${END}"
@@ -339,7 +338,7 @@ code=$(echo $?)
 [[ $code -eq 127 ]] && echo -e "${GREEN}(+ return status == 127)${END}" || echo -e "${YEL}(- return status != 127)${END}"
 rm -f stderr.txt outf
 
-echo -ne "Test 4 : ./pipex Makefile "yes" "cati" outfile_no_w \t\t--> "
+echo -ne "Test 4 : ./pipex Makefile yes cati outfile_no_w \t\t\t--> "
 touch outfile_no_w && chmod u-w outfile_no_w
 timeout --preserve-status 2 ./pipex Makefile "yes" "cati" outfile_no_w 2> stderr.txt
 code=$(echo $?)
@@ -355,7 +354,7 @@ echo -e "#include <stdio.h>\nint main(void){printf(\"yo\");}" > main.c
 mkdir -p dir1/dir2 ; gcc main.c ; gcc -o ls main.c ; gcc -o dir1/dir2/ls main.c
 rm main.c
 
-echo -ne "Test 1 : ./pipex Makefile ./a.out cat outf \t\t\t--> "
+echo -ne "Test 1 : ./pipex Makefile ./a.out cat outf \t\t\t\t--> "
 ./pipex Makefile "./a.out" "cat" outf 2> stderr.txt
 code=$(echo $?)
 [[ -f outf && $(cat outf) == "yo" ]] && echo -ne "${GREEN}OK${END}"|| echo -ne "${RED}KO${END}"
@@ -363,7 +362,7 @@ code=$(echo $?)
 [[ $code -eq 0 ]] && echo -e "${GREEN} (+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -f stderr.txt outf
 
-echo -ne "Test 2 : ./pipex Makefile ls ./ls outf \t\t\t\t--> "
+echo -ne "Test 2 : ./pipex Makefile ls ./ls outf \t\t\t\t\t--> "
 ./pipex Makefile "ls" "./ls" outf 2> stderr.txt
 code=$(echo $?)
 [[  -f outf && $(cat outf) == "yo" ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -371,7 +370,7 @@ code=$(echo $?)
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -f stderr.txt ls outf
 
-echo -ne "Test 3 : ./pipex Makefile date dir1/dir2/ls outf\t\t--> "
+echo -ne "Test 3 : ./pipex Makefile date dir1/dir2/ls outf\t\t\t--> "
 ./pipex Makefile "date" "dir1/dir2/ls" outf 2> stderr.txt
 code=$(echo $?)
 [[  -f outf && $(cat outf) == "yo" ]] && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -379,7 +378,7 @@ code=$(echo $?)
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -rf stderr.txt dir1/ outf
 
-echo -ne "Test 4 : ./pipex Makefile ls ./a.out (chmod u-x) outf \t\t--> "
+echo -ne "Test 4 : ./pipex Makefile ls ./a.out (chmod u-x) outf \t\t\t--> "
 chmod u-x a.out
 ./pipex Makefile "ls" "./a.out" outf 2> stderr.txt
 code=$(echo $?)
@@ -391,7 +390,7 @@ rm -f stderr.txt a.out outf
 # env -i
 echo -e "${BLU_BG}Empty environnement:${END}"
 
-echo -ne "Test 1 : env -i ./pipex Makefile cat ls outf \t\t\t--> "
+echo -ne "Test 1 : env -i ./pipex Makefile cat ls outf \t\t\t\t--> "
 env -i ./pipex Makefile "cat" "echo yo" outf > stderr.txt 2>&1
 code=$(echo $?)
 [[ -f outf ]] && cat outf | grep -q yo && ( echo -ne "${GREEN}OK - WOW t'es chaud, explique moi stp!${END}" && [[ $code -eq 0 ]] && echo -e " ${GREEN}(return status == 0)${END}" || echo -e " ${YEL}(return status != 0)${END}" )
@@ -400,7 +399,7 @@ code=$(echo $?)
 [[ -f outf ]] && cat outf | grep -q yo ||( [[ $code -eq 127 ]] && echo -e " ${GREEN}(+ return status == 127)${END}" || echo -e " ${YEL}(- return status != 127)${END}" )
 rm -f outf stderr.txt
 
-echo -ne "Test 2 : env -i ./pipex Makefile ${cat_path}/cat ${cat_path}/cat outf\t--> "
+echo -ne "Test 2 : env -i ./pipex Makefile ${cat_path}/cat ${cat_path}/cat outf\t\t--> "
 env -i ./pipex Makefile "${cat_path}/cat" "${cat_path}/cat" outf > stderr.txt 2>&1
 code=$(echo $?)
 diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
@@ -499,7 +498,7 @@ fd=$(cat vlg.txt | grep -o  "Open file descriptor [0-9]*:" | sort | uniq | wc -l
 [[ $fd -eq 0 ]] && echo -e "${GREEN} - no extra fd${END}" || echo -e "${RED} - $fd extra fd opened${END}"
 rm -f outf vlg.txt
 
-echo -ne "Test 6 : valgrind ./pipex Makefile ./a.out (chmod u-x) "echo yo" outf \t--> "
+echo -ne "Test 6 : valgrind ./pipex Makefile ./a.out (chmod u-x) \"echo yo\" outf \t--> "
 echo -e "#include <stdio.h>\nint main(void){printf(\"yo\");}" > main.c && gcc main.c && rm main.c
 chmod u-x a.out
 $vlgppx ./pipex Makefile "./a.out" "echo yo" outf > vlg.txt 2>&1
@@ -515,36 +514,64 @@ rm -f outf a.out vlg.txt
 
 fi
 
+# process and zombies 
+# Zombies only exists while child has returned and parent has not. As soon as parent returned,
+# child is adopted by the init process (pid 1) which collect is status and removed it from process table.
+# We can find zombie with : 
+	# ps -e or (aux) looking for defunct of Z+ in stat column
+	# top -bn1 looking for zombie nb on the second line, or Z in stat
+# we'll use second line of top. First check the nb, do the test, recheck the nb before pipex returned : if increased then pipex creates zombie
+# we need to get one child returned and not pipex so lets have a ./pipex sleep 3 sleep 1 and we be checking if sleep 1 became a z
+# about killing : seems like singint doesnot kill children of specified process, sigterm and sigkill do kill children
+# sigkill output on stdout, sigterm and singint dont
+# $! refers to the pid of the last pipeline launched in bg
 
-#process and zombies 
-
-# pipex children ppid is not pipex but the pid of bash that launched the tester!
-# look for all bash children in top using $$. Get rid of top, grep and bash from results
-# awk to get zombies pid and name ; killing them --> this lead to kill other process absolutely not related to pipex, i dont know why
-
-# other method using ps and the last pid of the last pipeline launched in bg via $!
 echo -e "${BLU_BG}Zombies (children process not waited by pipex):${END}"
 rm -rf *top_result zombies_test*
 
-echo -ne "Test 1 : ./pipex Makefile "sleep 1" "sleep 1" outf \t\t\t--> "
-./pipex Makefile "sleep 1" "sleep 1" outf &
-ppid=$! 
+echo -ne "Test 1 : ./pipex Makefile \"sleep 3\" \"sleep 1\" outf \t\t\t--> "
+start_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+./pipex Makefile "sleep 3" "sleep 1" outf &
 sleep 1
-ps | grep ppid | egrep -vi "(grep|ps|bash)" > ps_result
-[[ -s ps_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-#if [[ -s ps_result ]] ; then
-#	zombies=$(cat ps_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-#	kill $(cat ps_result | awk '{ print $1 }')
-#	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test1')${END}"
-#	cat ps_result > zombies_test1
-#fi
-rm -rf *ps_result outf 
+exec_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+ps -aux | grep Z | grep -vi grep > zombie_test1
+kill -s SIGTERM $! || kill -s SIGKILL $! > /dev/null 2>&1
+[[ $(( $exec_Z_nb - $start_Z_nb )) -eq 0 ]] && echo -e "${GREEN}OK (sleep 1 did not became a zombie)${END}" && rm -f zombie_test1
+[[ $(( $exec_Z_nb - $start_Z_nb )) -gt 0 ]] && echo -e "${RED}KO: $(( $exec_Z_nb - $start_Z_nb )) process became zombie before pipex returned (most probably sleep 1, please check 'zombie_test1')${END}"
+rm -f outf
 
-echo -ne "Test 2 : ./pipex Makefile cat cat outf \t\t\t\t--> "
-rm -rf *top_result outf
+echo -ne "Test 2 : ./pipex Makefile \"sleep 1\" \"sleep 3\" outf \t\t\t--> "
+start_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+./pipex Makefile "sleep 1" "sleep 3" outf &
+sleep 1 
+exec_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+ps -aux | grep Z | grep -vi grep > zombie_test2
+kill -s SIGTERM $! || kill -s SIGKILL $! > /dev/null 2>&1
+[[ $(( $exec_Z_nb - $start_Z_nb )) -eq 0 ]] && echo -e "${GREEN}OK (sleep 1 did not became a zombie)${END}" && rm -f zombie_test2
+[[ $(( $exec_Z_nb - $start_Z_nb )) -gt 0 ]] && echo -e "${RED}KO: $(( $exec_Z_nb - $start_Z_nb )) a process became a zombie before pipex returned (most probably sleep 1, please check 'zombie_test2')${END}"
+rm -f outf
 
-echo -ne "Test 3 : ./pipex bad_infile ls bad_cmd outf \t\t\t--> "
-rm -rf *top_result outf
+echo -ne "Test 3 : ./pipex bad_infile ls \"sleep 2\" outf \t\t\t\t--> "
+start_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+./pipex bad_infile ls "sleep 2" outf > /dev/null 2>&1 &
+sleep 1
+exec_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+ps -aux | grep Z | grep -vi grep > zombie_test3
+kill -s SIGTERM $! || kill -s SIGKILL $! > /dev/null 2>&1
+[[ $(( $exec_Z_nb - $start_Z_nb )) -eq 0 ]] && echo -e "${GREEN}OK (ls did not became a zombie)${END}" && rm -f zombie_test3
+[[ $(( $exec_Z_nb - $start_Z_nb )) -gt 0 ]] && echo -e "${RED}KO: $(( $exec_Z_nb - $start_Z_nb )) a process became a zombie before pipex returned (most probably ls, please check 'zombie_test3')${END}"
+rm -f outf
+
+echo -ne "Test 4 : ./pipex Makefile bad_cmd \"sleep 1\" outf \t\t\t--> "
+start_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+./pipex Makefile bad_cmd "sleep 1" outf > /dev/null 2>&1 & 
+exec_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+ps -aux | grep Z | grep -vi grep > zombie_test4
+kill -s SIGTERM $! || kill -s SIGKILL $! > /dev/null 2>&1
+[[ $(( $exec_Z_nb - $start_Z_nb )) -eq 0 ]] && echo -e "${GREEN}OK (bad_cmd did not became a zombie)${END}" && rm -f zombie_test4
+[[ $(( $exec_Z_nb - $start_Z_nb )) -gt 0 ]] && echo -e "${RED}KO: $(( $exec_Z_nb - $start_Z_nb )) a process became a zombie before pipex returned (most probably bad_cmd, please check 'zombie_test4')${END}"
+rm -f outf
+
 
 # -----------------------------------------------------------------------------------------------------------------------------------------
 # BONUS TESTS : 
@@ -594,20 +621,16 @@ diff t2_expected t2_output >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || ech
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e "${YEL}(- return status != 0)${END}"
 rm -f t2_* 
 
-#echo -ne "Test 5 : ./pipex bad_infile ls bad_cmd date cat outf \t\t\t\t--> "
-#./pipex bad_infile ls bad_cmd date cat outf > /dev/null 2>&1
-#if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
-#else top -l1 | grep $$ > top_result
-#fi
-#cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
-#[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-#if [[ -s clean_top_result ]] ; then 
-#	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-#	kill $(cat clean_top_result | awk '{ print $1 }')
-#	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test5')${END}"
-#	cat clean_top_result > zombies_test5
-#fi
-#rm -rf *top_result outf
+echo -ne "Test 5 : ./pipex Makefile cat ls \"sleep 3\" date \"sleep 1\" ls outf \t\t--> "
+start_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+./pipex Makefile cat ls "sleep 3" date env ls outf &
+sleep 1
+exec_Z_nb=$(top -bn1 | head -n2 | egrep -o "[0-9]* zombie$" | egrep -o "[0-9]*")
+ps -aux | grep Z | grep -vi grep > zombie_test5
+kill -s SIGTERM $! || kill -s SIGKILL $! > /dev/null 2>&1
+[[ $(( $exec_Z_nb - $start_Z_nb )) -eq 0 ]] && echo -e "${GREEN}OK (no zombie)${END}" && rm -f zombie_test5
+[[ $(( $exec_Z_nb - $start_Z_nb )) -gt 0 ]] && echo -e "${RED}KO: $(( $exec_Z_nb - $start_Z_nb )) process became zombie before pipex returned (please check 'zombie_test5)${END}"
+rm -f outf
 
 if [[ $os == "linux" ]] ; then
 echo -ne "Test 6 : valgrind ./${pipex_bonus} Makefile cat cat cat cat cat cat outf\t\t\t--> "
@@ -622,7 +645,7 @@ fi
 # here doc (ctrl d : can't figure out how to send EOF to pipex here_doc via a script)
 echo -e "${BLU_BG}Bonus here_doc:${END}"
 
-echo -ne "Test 1 : ./${pipex_bonus} here_doc lim cat cat outf (to create)\t\t\t--> "
+echo -ne "Test 1 : ./${pipex_bonus} here_doc lim cat cat outf (to create)\t\t\t\t--> "
 cat << lim | ./${pipex_bonus} here_doc lim cat cat outf >/dev/null 2>&1
 yolim
 yi lim
@@ -632,7 +655,7 @@ echo -e "yolim\nyi lim" > outf_expected 2>/dev/null
 diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "${RED}KO${END}"
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 
-echo -ne "Test 2 : ./${pipex_bonus} here_doc lim cat cat outf (to append)\t\t\t--> "
+echo -ne "Test 2 : ./${pipex_bonus} here_doc lim cat cat outf (to append)\t\t\t\t--> "
 cat << lim | ./${pipex_bonus} here_doc lim cat cat outf >/dev/null 2>&1
 yo
 yip
@@ -643,7 +666,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf outf_expected
 
-echo -ne "Test 3 : ./${pipex_bonus} here_doc lim cat outf (arg<5)\t\t\t\t--> "
+echo -ne "Test 3 : ./${pipex_bonus} here_doc lim cat outf (arg<5)\t\t\t\t\t--> "
 cat << lim | ./${pipex_bonus} here_doc lim cat outf >err.txt 2>&1
 mambo jambo
 lim
@@ -664,7 +687,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf outf_expected
 
-echo -ne "Test 5 : ./${pipex_bonus} here_doc lim cat cat outf_no_w\t\t\t\t--> "
+echo -ne "Test 5 : ./${pipex_bonus} here_doc lim cat cat outf_no_w\t\t\t\t\t--> "
 touch outf_no_w && chmod u-w outf_no_w
 cat << lim | ./${pipex_bonus} here_doc lim cat cat outf_no_w >/dev/null 2>&1
 yo
@@ -676,7 +699,7 @@ egrep -q "yo|yi" outf_no_w && echo -ne "${RED}KO${END}"
 [[ $code -eq 1 ]] && echo -e " ${GREEN}(+ return status == 1)${END}" || echo -e " ${YEL} (- return status != 1)${END}"
 rm -f outf_no_w
 
-echo -ne "Test 6 : ./${pipex_bonus} here_doc lim lsopi \"echo yo\" outf \t\t\t--> "
+echo -ne "Test 6 : ./${pipex_bonus} here_doc lim lsopi \"echo yo\" outf \t\t\t\t--> "
 echo "salut" > outf && echo "salut" > outf_expected
 cat << lim | ./${pipex_bonus} here_doc lim lsopi "echo yo" outf >/dev/null 2>&1
 yayaya
@@ -688,7 +711,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 rm -f outf*
 
 if [[ $os == "linux" ]] ; then
-echo -ne "Test 7 : valgrind ./${pipex_bonus} here_doc lim cat cat outf \t\t\t--> "
+echo -ne "Test 7 : valgrind ./${pipex_bonus} here_doc lim cat cat outf \t\t\t\t--> "
 cat << lim | $vlgppx ./${pipex_bonus} here_doc lim cat cat outf > vlg.txt 2>&1
 yolim
 yop lim
@@ -717,7 +740,7 @@ echo -e "${YEL_BG}Additional tests (not all  required to pass to validate pipex)
 # quotes
 echo -e "${BLU_BG}Single quotes parsing:${END}"
 
-echo -ne "Test 1 : ./pipex Makefile \"echo yo\" \"echo 'a' 'b' 'c'\" outf \t--> "
+echo -ne "Test 1 : ./pipex Makefile \"echo yo\" \"echo 'a' 'b' 'c'\" outf \t\t--> "
 ./pipex Makefile "echo yo" "echo 'a' 'b' 'c'" outf 2>/dev/null
 code=$(echo $?)
 echo 'a' 'b' 'c' > outf_expected
@@ -725,7 +748,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf*
 
-echo -ne "Test 2 : ./pipex Makefile cat \"grep 'clean'\" outf \t\t--> "
+echo -ne "Test 2 : ./pipex Makefile cat \"grep 'clean'\" outf \t\t\t--> "
 ./pipex Makefile "cat" "grep 'clean'" outf 2>/dev/null
 code=$(echo $?)
 cat Makefile | grep 'clean' > outf_expected
@@ -733,7 +756,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf*
 
-echo -ne "Test 3 : ./pipex Makefile cat \"cut -d'=' -f1\" outf \t\t--> "
+echo -ne "Test 3 : ./pipex Makefile cat \"cut -d'=' -f1\" outf \t\t\t--> "
 ./pipex Makefile "cat" "cut -d'=' -f1" outf 2>/dev/null
 code=$(echo $?)
 cat Makefile | cut -d'=' -f1 > outf_expected
@@ -741,17 +764,17 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf*
 
-echo -ne "Test 4 : ./pipex Makefile cat \"echo ''yo'\" outf \t\t--> "
+echo -ne "Test 4 : ./pipex Makefile cat \"echo ''yo'\" outf \t\t\t--> "
 ./pipex Makefile "cat" "echo ''yo'" outf 2>/dev/null
 code=$(echo $?)
 echo outf | grep -q yo && echo -ne "${RED}KO (odd nb of quotes)${END}" || echo -ne "${GREEN}OK${END}" 
 [[ $code -ne 0 ]] && echo -e " ${GREEN}(+ return status != 0)${END}" || echo -e " ${YEL}(- return status == 0)${END}"
 rm -f outf*
 
-# <spaces> (if pb, stop using ft_split with space as separator. Think about a char value you would never receive in argv. Think about spaces enclosed in single quotes too)
+# <spaces> (if pb, stop using ft_split with space as separator. Think about a char (not unsigned?!) value you would never receive in argv. Think about spaces enclosed in single quotes too)
 echo -e "${BLU_BG}Spaces parsing:${END}"
 
-echo -ne "Test 1 : ./pipex Makefile \"echo yo\" \"echo ' '\" outf \t\t--> "
+echo -ne "Test 1 : ./pipex Makefile \"echo yo\" \"echo ' '\" outf \t\t\t--> "
 ./pipex Makefile "echo yo" "echo ' '" outf 2>/dev/null
 code=$(echo $?)
 echo ' ' > outf_expected
@@ -759,7 +782,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf*
 
-echo -ne "Test 2 : ./pipex Makefile \"echo yo\" \"echo ' hello '\" outf \t--> "
+echo -ne "Test 2 : ./pipex Makefile \"echo yo\" \"echo ' hello '\" outf \t\t--> "
 ./pipex Makefile "echo yo" "echo ' hello '" outf 2>/dev/null
 code=$(echo $?)
 echo ' hello ' > outf_expected
@@ -767,7 +790,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf*
 
-echo -ne "Test 3 : ./pipex Makefile cat \"cut -d' ' -f1\" outf \t\t--> "
+echo -ne "Test 3 : ./pipex Makefile cat \"cut -d' ' -f1\" outf \t\t\t--> "
 ./pipex Makefile "cat" "cut -d' ' -f1" outf 2>/dev/null
 code=$(echo $?)
 cat Makefile | cut -d' ' -f1 > outf_expected
@@ -784,7 +807,7 @@ diff outf outf_expected >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -
 [[ $code -eq 0 ]] && echo -e " ${GREEN}(+ return status == 0)${END}" || echo -e " ${YEL}(- return status != 0)${END}"
 rm -f outf* 't file'
 
-# backslash (cancels interpretation on the following char ; it is not even required in minishell ...)
+# backslash (cancels interpretation on the following metachar ; it is not even required in minishell ...)
 echo -e "${BLU_BG}Backlash parsing:${END}"
 
 echo -ne "Test 1 : touch t\ file && ./pipex Makefile cat \"ls t\ file\" outf \t--> "
@@ -904,44 +927,6 @@ diff Makefile outf >/dev/null 2>&1 && echo -ne "${GREEN}OK${END}" || echo -ne "$
 cat err | grep -i "open" | grep -qi "files" && echo -ne "${GREEN} (err msg with open files)${END}"
 cat err | egrep -qi "segfault|segmentation|core ?dump" && echo -e "${RED}SUPER KO segfault${END}" || echo -e "${GREEN} (no segfault)${END}"
 rm -f outf err
-
-#echo -ne "Test 4 : ./$pipex_bonus Makefile cat (521 times) outf \t--> "
-#./$pipex_bonus Makefile cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat cat \
-# cat cat cat cat cat cat cat outf >err 2>&1
-#if [[ $os == "linux" ]] ; then top -bn1 | grep $$ > top_result
-#else top -l1 | grep $$ > top_result
-#fi
-#cat top_result | egrep -vi "(grep|top|bash)" > clean_top_result
-#[[ -s clean_top_result ]] || echo -e "${GREEN}OK (no zombie)${END}"
-#if [[ -s clean_top_result ]] ; then 
-#	zombies=$(cat clean_top_result | awk '{ print $1,$2 }' | tr '\n' ' ')
-#	kill $(cat clean_top_result | awk '{ print $1 }')
-#	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test521')${END}"
-#	cat clean_top_result > zombies_test521
-#fi
-#rm -rf *top_result outf err
 
 fi
 
