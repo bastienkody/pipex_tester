@@ -522,12 +522,14 @@ fi
 # look for all bash children in top using $$. Get rid of top, grep and bash from results
 # awk to get zombies pid and name ; killing them --> this lead to kill other process absolutely not related to pipex, i dont know why
 
-# other method using ps and the last pid of the last pipeline launched in bg via $!
+# other method using ps and $! for the pid of the last pipeline launched in bg!
 echo -e "${BLU_BG}Zombies (children process not waited by pipex):${END}"
 rm -rf *top_result zombies_test*
 
+gcc -o popo popo.c
+
 echo -ne "Test 1 : ./pipex Makefile "sleep 1" "sleep 1" outf \t\t\t--> "
-./pipex Makefile "sleep 1" "sleep 1" outf &
+./popo Makefile "sleep 1" "sleep 1" outf &
 ppid=$! 
 sleep 1
 ps | grep ppid | egrep -vi "(grep|ps|bash)" > ps_result
@@ -538,7 +540,7 @@ ps | grep ppid | egrep -vi "(grep|ps|bash)" > ps_result
 #	echo -e "${RED}KO (${zombies}killed by tester, see log file 'zombies_test1')${END}"
 #	cat ps_result > zombies_test1
 #fi
-rm -rf *ps_result outf 
+rm -rf *ps_result outf popo
 
 echo -ne "Test 2 : ./pipex Makefile cat cat outf \t\t\t\t--> "
 rm -rf *top_result outf
